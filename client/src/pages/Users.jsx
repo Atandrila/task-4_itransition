@@ -5,6 +5,7 @@ import UserTable from "../components/UserTable";
 
 export default function Users() {
   const [currentUser, setCurrentUser] = useState(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const navigate = useNavigate();
 
   async function loadCurrentUser() {
@@ -12,7 +13,9 @@ export default function Users() {
       const res = await api.get("/auth/me");
       setCurrentUser(res.data.user);
     } catch {
-      navigate("/login");
+      navigate("/login", { replace: true });
+    } finally {
+      setCheckingAuth(false);
     }
   }
 
@@ -20,13 +23,29 @@ export default function Users() {
     try {
       await api.post("/auth/logout");
     } finally {
-      navigate("/login");
+      navigate("/login", { replace: true });
     }
   }
 
   useEffect(() => {
     loadCurrentUser();
   }, []);
+
+  if (checkingAuth) {
+    return (
+      <main className="auth-page">
+        <section className="auth-card card shadow-sm">
+          <div className="card-body text-center p-4">
+            Checking authentication...
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!currentUser) {
+    return null;
+  }
 
   return (
     <>
@@ -35,11 +54,9 @@ export default function Users() {
           <span className="navbar-brand fw-bold">User Management</span>
 
           <div className="d-flex align-items-center gap-3">
-            {currentUser && (
-              <span className="text-muted small d-none d-md-inline">
-                {currentUser.name} · {currentUser.email}
-              </span>
-            )}
+            <span className="text-muted small d-none d-md-inline">
+              {currentUser.name} · {currentUser.email} · {currentUser.status}
+            </span>
 
             <button className="btn btn-outline-secondary btn-sm" onClick={logout}>
               Logout
@@ -49,13 +66,11 @@ export default function Users() {
       </nav>
 
       <main className="container-fluid px-4 py-4">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h4 className="mb-1">Users</h4>
-            <p className="text-muted mb-0">
-              Select users and manage their access from the toolbar.
-            </p>
-          </div>
+        <div className="mb-3">
+          <h4 className="mb-1">Users</h4>
+          <p className="text-muted mb-0">
+            Select users and manage their access from the toolbar.
+          </p>
         </div>
 
         <UserTable />
