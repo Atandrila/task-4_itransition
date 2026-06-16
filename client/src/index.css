@@ -1,0 +1,70 @@
+body {
+  margin: 0;
+  background: #f6f8fb;
+  color: #1f2937;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 430px;
+  border: 0;
+  border-radius: 18px;
+}
+
+.brand {
+  color: #0d6efd;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  font-size: 1.3rem;
+}
+
+.toolbar {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.filter-input {
+  max-width: 240px;
+}
+
+.checkbox-cell {
+  width: 46px;
+  text-align: center;
+}
+
+.table th {
+  font-size: 0.85rem;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.table td {
+  font-size: 0.92rem;
+}
+
+.blocked-row {
+  opacity: 0.55;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+@media (max-width: 576px) {
+  .filter-input {
+    max-width: 100%;
+  }
+
+  .toolbar {
+    align-items: stretch !important;
+  }
+}
