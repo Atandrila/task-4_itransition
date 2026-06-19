@@ -13,11 +13,6 @@ const app = express();
 
 app.use(helmet());
 
-app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true
-}));
-
 app.use(express.json());
 app.set("trust proxy", 1);
 
@@ -52,6 +47,29 @@ app.get("/api/health/db", async (req, res) => {
 app.get("/health", (req, res) => {
   res.json({ message: "Server is running." });
 });
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "https://task-4-itransition-git-master-atandrila-pushpas-projects.vercel.app",
+  "https://task-4-itransition-8cp3ecfc1-atandrila-pushpas-projects.vercel.app"
+].filter(Boolean);
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.endsWith(".vercel.app")
+    ) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true
+}));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 const railwayPort = process.env.PORT || 8079;
