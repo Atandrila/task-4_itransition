@@ -54,10 +54,12 @@ app.get("/health", (req, res) => {
 });
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+const PORT = process.env.PORT || 5000;
 
-if (process.env.NODE_ENV !== "production") {
-  app.listen(process.env.PORT || 5000, () => {
-    console.log(`Server running on port ${process.env.PORT || 5000}`);
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
   });
 }
-export { app };
+
+export { app }
