@@ -56,10 +56,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 const PORT = process.env.PORT || 5000;
 
+const PORT = process.env.PORT || 8079;
+
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
 }
-
-export { app }
+export { app };
