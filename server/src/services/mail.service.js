@@ -1,38 +1,54 @@
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-function createTransporter() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS.replace(/\s/g, "")
-    }
-  });
-}
+async function sendGoogleScriptEmail({ to, subject, text, html }) {
+  // important: Railway free/trial blocks SMTP, so we use Google Apps Script HTTPS.
+  // note: MAIL_API_SECRET must match the secret inside Apps Script.
+  // nota bene: this still sends real email without Brevo or SMTP.
 
-export async function sendVerificationEmail(email, token) {
-  // important: show full link and button in email.
-  // note: local testing uses localhost, deployment uses BACKEND_URL.
-  // nota bene: clicking the link changes unverified user to active.
-
-  const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
-  const verifyUrl = `${backendUrl}/api/auth/verify-email?token=${token}`;
-
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.MAIL_FROM) {
-    console.log("Email skipped. Verification link:");
-    console.log(verifyUrl);
+  if (!process.env.GOOGLE_SCRIPT_MAIL_URL || !process.env.MAIL_API_SECRET) {
+    console.log("Email skipped. Missing GOOGLE_SCRIPT_MAIL_URL or MAIL_API_SECRET.");
+    console.log(text);
     return;
   }
 
-  const transporter = createTransporter();
+  const response = await fetch(process.env.GOOGLE_SCRIPT_MAIL_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      secret: process.env.MAIL_API_SECRET,
+      to,
+      subject,
+      text,
+      html,
+      fromName: process.env.MAIL_FROM_NAME || "User Management App"
+    })
+  });
 
-  await transporter.sendMail({
-    from: `"User Management App" <${process.env.MAIL_FROM}>`,
+  const raw = await response.text();
+
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    data = { ok: false, error: raw };
+  }
+
+  if (!response.ok || data.ok === false) {
+    throw new Error(`Google Apps Script email failed: ${JSON.stringify(data)}`);
+  }
+
+  return data;
+}
+
+export async function sendVerificationEmail(email, token) {
+  const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+  const verifyUrl = `${backendUrl}/api/auth/verify-email?token=${token}`;
+
+  await sendGoogleScriptEmail({
     to: email,
     subject: "Verify your account",
     text: `Please verify your account by opening this link: ${verifyUrl}`,
@@ -53,23 +69,10 @@ export async function sendVerificationEmail(email, token) {
 }
 
 export async function sendPasswordResetEmail(email, token) {
-  // important: password reset link goes to frontend page.
-  // note: the backend verifies the token before changing password.
-  // nota bene: reset token expires after one hour.
-
   const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
   const resetUrl = `${clientUrl}/reset-password?token=${token}`;
 
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.MAIL_FROM) {
-    console.log("Password reset email skipped. Reset link:");
-    console.log(resetUrl);
-    return;
-  }
-
-  const transporter = createTransporter();
-
-  await transporter.sendMail({
-    from: `"User Management App" <${process.env.MAIL_FROM}>`,
+  await sendGoogleScriptEmail({
     to: email,
     subject: "Reset your password",
     text: `Reset your password by opening this link: ${resetUrl}`,
