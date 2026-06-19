@@ -6,6 +6,15 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "^6.0.2",
+    "bcryptjs": "^3.0.3",
+    "cookie-session": "^2.1.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "helmet": "^8.2.0",
+    "mysql2": "^3.22.5",
+    "nodemailer": "^9.0.1",
     "vite": "^8.0.16"
   }
 }
