@@ -13,3 +13,10 @@ export function getEmailToken() {
   // nota bene: blocked users must stay blocked after verification.
   return crypto.randomBytes(32).toString("hex");
 }
+
+export function getPasswordResetToken() {
+  // important: this token lets a user reset password securely.
+  // note: it expires and is removed after successful reset.
+  // nota bene: never put the user's password inside the link.
+  return crypto.randomBytes(32).toString("hex");
+}
