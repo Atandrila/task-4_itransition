@@ -146,10 +146,8 @@ router.get("/me", requireValidUser, async (req, res) => {
 });
 
 router.post("/logout", requireValidUser, async (req, res) => {
-  req.session.destroy(() => {
-    res.clearCookie("sid");
-    res.json({ message: "Logged out successfully." });
-  });
+  req.session = null;
+  res.json({ message: "Logged out." });
 });
 router.post("/forgot-password", async (req, res) => {
   try {

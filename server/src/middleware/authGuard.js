@@ -19,7 +19,7 @@ export async function requireValidUser(req, res, next) {
     );
 
     if (rows.length === 0 || rows[0].status === "blocked") {
-      req.session.destroy(() => {});
+     req.session = null;
 
       return res.status(401).json({
         message: "Your account was blocked or deleted. Please login again.",

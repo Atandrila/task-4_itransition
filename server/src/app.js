@@ -1,5 +1,5 @@
 import express from "express";
-import session from "express-session";
+import cookieSession from "cookie-session";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
@@ -19,17 +19,15 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.set("trust proxy", 1);
 
-app.use(session({
+app.use(cookieSession({
   name: "sid",
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: false
-  }
+  keys: [process.env.SESSION_SECRET || "local_dev_secret"],
+  httpOnly: true,
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  secure: process.env.NODE_ENV === "production",
+  maxAge: 24 * 60 * 60 * 1000
 }));
 
 app.use("/api/auth", authRoutes);
@@ -40,5 +38,7 @@ if (process.env.NODE_ENV !== "production") {
     console.log(`Server running on port ${process.env.PORT || 5000}`);
   });
 }
+
+export default app;
 
 export default app;
