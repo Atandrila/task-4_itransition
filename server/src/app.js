@@ -56,11 +56,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 const railwayPort = process.env.PORT || 8079;
 
-if (!process.env.VERCEL) {
-  app.listen(railwayPort, "0.0.0.0", () => {
-    console.log(`Server running on port ${railwayPort}`);
-  });
-}
+app.listen(railwayPort, "0.0.0.0", () => {
+  console.log(`Server running on port ${railwayPort}`);
+});
 
 export { app };
 
