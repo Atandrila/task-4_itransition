@@ -29,7 +29,13 @@ app.use(cookieSession({
   secure: process.env.NODE_ENV === "production",
   maxAge: 24 * 60 * 60 * 1000
 }));
+app.get("/api/health", (req, res) => {
+  res.json({ message: "Server is running." });
+});
 
+app.get("/health", (req, res) => {
+  res.json({ message: "Server is running." });
+});
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 
