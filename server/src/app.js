@@ -35,6 +35,10 @@ app.use(session({
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 
-app.listen(process.env.PORT || 5000, () => {
-  console.log(`Server running on port ${process.env.PORT || 5000}`);
-});
+if (process.env.NODE_ENV !== "production") {
+  app.listen(process.env.PORT || 5000, () => {
+    console.log(`Server running on port ${process.env.PORT || 5000}`);
+  });
+}
+
+export default app;
